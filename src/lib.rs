@@ -142,6 +142,27 @@ impl<T> MyLinkedList<T> {
             node
         })
     }
+
+    /// Unlinks the specified node from the current list.
+    ///
+    /// warning: this will not check that the provided node belongs to the current list.
+    #[inline]
+    #[allow(dead_code)]
+    unsafe fn unlink_node(&mut self, mut node: NonNull<Node<T>>) {
+        let node = node.as_mut(); // This one is ours now, we can create an &mut
+
+        match node.prev {
+            Some(prev) => (*prev.as_ptr()).next = node.next,
+            None => self.head = node.next,
+        }
+
+        match node.next {
+            Some(next) => (*next.as_ptr()).prev = node.prev,
+            None => self.tail = node.prev,
+        }
+
+        self.len -= 1;
+    }
 }
 #[cfg(test)]
 mod tests {
